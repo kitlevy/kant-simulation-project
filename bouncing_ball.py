@@ -22,12 +22,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    if pygame.mouse.get_pressed()==True:
-        ball_x=pygame.mouse.get_pos()[0]
-        ball_y=pygame.mouse.get_pos()[1]
-        ball_dx = random.choice([-5, 5])
-        ball_dy = random.choice([-5, 5])
-
     ball_x += ball_dx
     ball_y += ball_dy
 
@@ -35,6 +29,11 @@ while running:
         ball_dx = -ball_dx
     if ball_y - ball_radius <= 0 or ball_y + ball_radius >= height:
         ball_dy = -ball_dy
+    
+    if pygame.mouse.get_pressed()[0]==1:
+        (ball_x,ball_y)=pygame.mouse.get_pos()
+        ball_dx = random.choice([-5, 5])
+        ball_dy = random.choice([-5, 5])
 
     screen.fill(white)
 
