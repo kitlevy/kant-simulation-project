@@ -8,7 +8,7 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Bouncing Ball")
 
 white = (255, 255, 255)
-red = (255, 0, 0)
+blue = (173, 216, 230)
 
 ball_radius = 20
 ball_x = random.randint(ball_radius, width - ball_radius)
@@ -21,6 +21,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    if pygame.mouse.get_pressed()==True:
+        ball_x=pygame.mouse.get_pos()[0]
+        ball_y=pygame.mouse.get_pos()[1]
+        ball_dx = random.choice([-5, 5])
+        ball_dy = random.choice([-5, 5])
 
     ball_x += ball_dx
     ball_y += ball_dy
