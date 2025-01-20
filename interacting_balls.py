@@ -32,6 +32,15 @@ class Ball:
             if ball!=self:
                 d=np.sqrt((self.x-ball.x)**2+(self.y-ball.y)**2)
                 if d<=self.rad+ball.rad:
+                    #fixing the overlap glitch
+                    overlap=(self.rad+ball.rad-d)/2
+                    if d>0:
+                        tempdx=(self.x-ball.x)/d
+                        tempdy=(self.y-ball.y)/d
+                        self.x+=tempdx*overlap
+                        self.y+=tempdy*overlap
+                        ball.x-=tempdx*overlap
+                        ball.y-=tempdy*overlap
                     #using that calc 3 + high school physics knowledge
                     p1=np.array([self.x,self.y])
                     p2=np.array([ball.x,ball.y])
