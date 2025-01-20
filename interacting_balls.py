@@ -17,16 +17,13 @@ class Ball:
         self.dx=newdx
         self.dy=newdy
     
-    def display(self):
-        self.x+=self.dx
-        self.y+=self.dy
-
+    def checkcollisions(self,balls):
         #wall collisions
         if self.x-self.rad<=0 or self.x+self.rad>=width:
             self.dx=-self.dx
         if self.y-self.rad<=0 or self.y+self.rad>=height:
             self.dy=-self.dy
-        
+
         #ball-to-ball collisions
         for ball in balls:
             if ball!=self:
@@ -59,8 +56,10 @@ class Ball:
                     self.setvelo(newv1[0],newv1[1])
                     ball.setvelo(newv2[0],newv2[1])
 
-
-
+    
+    def display(self):
+        self.x+=self.dx
+        self.y+=self.dy
         
         pygame.draw.circle(screen,self.color,(self.x,self.y),self.rad)
 
@@ -88,6 +87,9 @@ while running:
 
     screen.fill(white)
 
+    for ball in balls:
+        ball.checkcollisions(balls)
+    
     for ball in balls:
         ball.display()
 
