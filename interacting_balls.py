@@ -19,17 +19,9 @@ class Ball:
     
     def checkcollisions(self,balls):
         #wall collisions
-        if self.x-self.rad<=0:
-            self.x=self.rad
+        if self.x-self.rad<=0 or self.x+self.rad>=width:
             self.dx=-self.dx
-        if self.x+self.rad>=width:
-            self.x=width-self.rad
-            self.dx=-self.dx
-        if self.y-self.rad<=0:
-            self.y=self.rad
-            self.dy=-self.dy
-        if self.y+self.rad>=height:
-            self.y=height-self.rad
+        if self.y-self.rad<=0 or self.y+self.rad>=height:
             self.dy=-self.dy
 
         #ball-to-ball collisions
