@@ -19,9 +19,17 @@ class Ball:
     
     def checkcollisions(self,balls):
         #wall collisions
-        if self.x-self.rad<=0 or self.x+self.rad>=width:
+        if self.x-self.rad<=1:
+            self.x=self.rad+1
             self.dx=-self.dx
-        if self.y-self.rad<=0 or self.y+self.rad>=height:
+        if self.x+self.rad>=width-1:
+            self.x=width-self.rad-1
+            self.dx=-self.dx
+        if self.y-self.rad<=1:
+            self.y=self.rad+1
+            self.dy=-self.dy
+        if self.y+self.rad>=height-1:
+            self.y=height-self.rad-1
             self.dy=-self.dy
 
         #ball-to-ball collisions
@@ -31,13 +39,12 @@ class Ball:
                 if d<=self.rad+ball.rad:
                     #fixing the overlap glitch
                     overlap=(self.rad+ball.rad-d)/2
-                    if d>0:
-                        tempdx=(self.x-ball.x)/d
-                        tempdy=(self.y-ball.y)/d
-                        self.x+=tempdx*overlap
-                        self.y+=tempdy*overlap
-                        ball.x-=tempdx*overlap
-                        ball.y-=tempdy*overlap
+                    tempdx=(self.x-ball.x)/d
+                    tempdy=(self.y-ball.y)/d
+                    self.x+=tempdx*overlap
+                    self.y+=tempdy*overlap
+                    ball.x-=tempdx*overlap
+                    ball.y-=tempdy*overlap
                     #using that calc 3 + high school physics knowledge
                     p1=np.array([self.x,self.y])
                     p2=np.array([ball.x,ball.y])
@@ -96,6 +103,6 @@ while running:
     #constantly updating
     pygame.display.flip()
 
-    pygame.time.Clock().tick(60)
+    pygame.time.Clock().tick(100)
 
 pygame.quit()
