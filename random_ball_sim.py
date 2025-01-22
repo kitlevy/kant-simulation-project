@@ -17,8 +17,8 @@ class Ball:
         self.dx=newdx
         self.dy=newdy
 
-    def getdist(self,ball):
-        return np.sqrt((self.x-ball.x)**2+(self.y-ball.y)**2)
+    def getdist(self,x,y):
+        return np.sqrt((self.x-x)**2+(self.y-y)**2)
     
     def checkcollisions(self,balls):
         #wall collisions
@@ -38,7 +38,7 @@ class Ball:
         #ball-to-ball collisions
         for ball in balls:
             if ball!=self:
-                d=self.getdist(ball)
+                d=self.getdist(ball.x,ball.y)
                 if d<=self.rad+ball.rad-1:
                     #fixing the overlap glitch
                     overlap=(self.rad+ball.rad-d+1)/2
@@ -76,18 +76,24 @@ class Ball:
 
 pygame.init()
 
-width,height=800,600
+width,height=900,600
 screen=pygame.display.set_mode((width,height))
 white=(255,255,255)
 blue=(173,216,230)
 
 balls=[]
-balls.append(Ball(100,100,40,np.random.choice([-4,4]),np.random.choice([-4,4]),blue))
-balls.append(Ball(150,150,20,np.random.choice([-4,4]),np.random.choice([-4,4]),blue))
-balls.append(Ball(200,200,20,np.random.choice([-4,4]),np.random.choice([-4,4]),blue))
-balls.append(Ball(150,350,20,np.random.choice([-4,4]),np.random.choice([-4,4]),blue))
-balls.append(Ball(400,200,20,np.random.choice([-4,4]),np.random.choice([-4,4]),blue))
-
+radius=20
+velomag=4
+while len(balls)<10:
+    x=np.random.randint(radius,width-radius)
+    y=np.random.randint(radius,height-radius)
+    spaced=True
+    for ball in balls:
+        if ball.getdist(x,y)<radius:
+            spaced=False
+    if spaced:
+        balls.append(Ball(x,y,radius,np.random.choice([-velomag,velomag])*np.random.rand(),np.random.choice([-velomag,velomag])*np.random.rand(),blue))
+    
 #main pygame loop
 running=True
 while running:
