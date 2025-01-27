@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 def RK2_vectorized(m,a,b,y0,N):
     alph=0.5
