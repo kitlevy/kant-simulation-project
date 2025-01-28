@@ -4,14 +4,20 @@ import numpy as np
 #basic ball class
 class Ball:
 
-    def __init__(self,x,y,radius,dx,dy,color):
+    def __init__(self,x,y,radius,dx,dy,state):
         self.x=x
         self.y=y
         self.dx=dx
         self.dy=dy
-        self.color=color
+        self.state=state
         self.rad=radius
         self.mass=np.pi*(self.rad**2)
+        if self.state=='S':
+            self.color=uninfected
+        elif self.state=='I':
+            self.color=infected
+        elif self.state=='R':
+            self.color=uninfected
     
     def setvelo(self,newdx,newdy):
         self.dx=newdx
@@ -71,11 +77,23 @@ class Ball:
     def display(self):
         self.x+=self.dx
         self.y+=self.dy
+
+        if self.state=='S':
+            self.color=uninfected
+        elif self.state=='I':
+            self.color=infected
+        elif self.state=='R':
+            self.color=uninfected
         
         pygame.draw.circle(screen,self.color,(self.x,self.y),self.rad)
 
 
 class InfectiousBall(Ball):
+    def infect(self,prob):
+        if np.random.rand()<prob:
+            return 'I'
+        return 'S'
+
     def checkballcollisions(self,balls):
         #ball-to-ball collisions
         for ball in balls:
@@ -83,10 +101,10 @@ class InfectiousBall(Ball):
                 d=self.getdist(ball.x,ball.y)
                 if d<=self.rad+ball.rad-1:
                     #changing color if ball touches red ball
-                    if ball.color==infected and self.color==uninfected:
-                        self.color=infected
-                    elif ball.color==uninfected and self.color==infected:
-                        ball.color=infected
+                    if ball.state=='I' and self.state=='S':
+                        self.state=self.infect(infectionprob)
+                    elif ball.state=='S' and self.state=='I':
+                        ball.state=ball.infect(infectionprob)
                     #fixing the overlap glitch
                     overlap=(self.rad+ball.rad-d+1)/2
                     tempdx=(self.x-ball.x)/d
@@ -111,10 +129,9 @@ class InfectiousBall(Ball):
                     newv2=v2+(imp/ball.mass)*n
 
                     self.setvelo(newv1[0],newv1[1])
-                    ball.setvelo(newv2[0],newv2[1])
+                    ball.setvelo(newv2[0],newv2[1]) 
 
                    
-
 
 
 
@@ -122,16 +139,22 @@ pygame.init()
 
 width,height=900,600
 screen=pygame.display.set_mode((width,height))
+pygame.display.set_caption("Interacting Balls")
 white=(255,255,255)
 blue=(173,216,230)
 red=(255,0,59)
+
 uninfected=blue
 infected=red
+infectionprob=0.8
 
 balls=[]
-radius=20
+radius=10
 velomag=4
-while len(balls)<10:
+ballcount=20
+
+
+while len(balls)<ballcount:
     x=np.random.randint(radius,width-radius)
     y=np.random.randint(radius,height-radius)
     spaced=True
@@ -139,8 +162,8 @@ while len(balls)<10:
         if ball.getdist(x,y)<radius:
             spaced=False
     if spaced:
-        balls.append(InfectiousBall(x,y,radius,np.random.choice([-velomag,velomag])*np.random.rand(),np.random.choice([-velomag,velomag])*np.random.rand(),blue))
-while len(balls)<11:
+        balls.append(InfectiousBall(x,y,radius,np.random.choice([-velomag,velomag])*np.random.rand(),np.random.choice([-velomag,velomag])*np.random.rand(),'S'))
+while len(balls)<ballcount+1:
     x=np.random.randint(radius,width-radius)
     y=np.random.randint(radius,height-radius)
     spaced=True
@@ -148,7 +171,7 @@ while len(balls)<11:
         if ball.getdist(x,y)<radius:
             spaced=False
     if spaced:
-        balls.append(InfectiousBall(x,y,radius,np.random.choice([-velomag,velomag])*np.random.rand(),np.random.choice([-velomag,velomag])*np.random.rand(),red))
+        balls.append(InfectiousBall(x,y,radius,np.random.choice([-velomag,velomag])*np.random.rand(),np.random.choice([-velomag,velomag])*np.random.rand(),'I'))
 
     
 #main pygame loop
