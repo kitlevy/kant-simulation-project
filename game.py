@@ -2,6 +2,8 @@ import pygame
 import pygame.freetype
 import os, sys
 
+from title import Title
+
 class Game():
         def __init__(self):
             pygame.init()
@@ -32,14 +34,12 @@ class Game():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         if self.state == "TITLE":
-                            self.state = "INTRO"
-                        if self.state == "INTRO"
                             self.state = "GAME"
                     if event.key == pygame.K_s:
                         self.selfishmode = True
     
         def update(self):
-            self.state_stack[-1].update(self.dt,self.actions)
+            self.state_stack[-1].update(self.dt)
 
         def render(self):
             self.state_stack[-1].render(self.game_canvas)
@@ -69,10 +69,6 @@ class Game():
         def load_states(self):
             self.title_screen = Title(self)
             self.state_stack.append(self.title_screen)
-
-        def reset_keys(self):
-            for action in self.actions:
-                self.actions[action] = False
 
 
 if __name__ == "__main__":
