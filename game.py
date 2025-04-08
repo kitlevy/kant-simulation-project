@@ -34,7 +34,7 @@ class Game():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         if self.state == "TITLE":
-                            self.state = "GAME"
+                            self.state = "FISH_SIM"
                     if event.key == pygame.K_s:
                         self.selfishmode = True
     

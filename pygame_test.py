@@ -31,9 +31,6 @@ def load_image(name):
     image = image.convert()
     return image
 
-class Game():
-    def __init__(self):
-
 
 class Pond:
     def __init__(self,loc,fish):
