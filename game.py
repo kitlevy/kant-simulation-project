@@ -35,8 +35,17 @@ class Game():
                     if event.key == pygame.K_RETURN:
                         if self.state == "TITLE":
                             self.state = "FISH_SIM"
-                    if event.key == pygame.K_s:
-                        self.selfishmode = True
+                    if self.state == "FISH_SIM":
+                        if self.state.days_passed == 0:
+                            if event.key == pygame.K_s:
+                                self.selfishmode = True
+                                self.state_stack.append(FishSim())
+                            if event.key == pygame.K_1:
+                                self.selfishmode = False
+                                self.statestack.append(FishSim())
+                        if self.state.game_over:
+                            if event.key == pygame.K_r:
+                                self.state_stack.append(Title())
     
         def update(self):
             self.state_stack[-1].update(self.dt)
@@ -46,7 +55,6 @@ class Game():
             # Render current state to the screen
             self.screen.blit(pygame.transform.scale(self.game_canvas,(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)), (0,0))
             pygame.display.flip()
-
 
         def get_dt(self):
             now = time.time()
@@ -67,7 +75,8 @@ class Game():
             self.font = pygame.freetype.Font("assets/calibri-bold.ttf", 36)
             
         def load_states(self):
-            self.title_screen = Title(self)
+            self.title_screen = Title()
+            self.fish_sim = FishSim()
             self.state_stack.append(self.title_screen)
 
 
