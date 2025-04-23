@@ -1,6 +1,7 @@
 import pygame
+import pygame.freetype
 import random
-from state import State
+from states.state import State
 
 class Pond:
     def __init__(self, loc, fish):
@@ -9,12 +10,9 @@ class Pond:
         self.x = self.center[0]
         self.y = self.center[1]
         self.size = 30
-                
+
     def display(self, surface):
         pygame.draw.circle(surface, (173, 216, 230), self.center, self.size)
-        text_surface, text_rect = pygame.font.Font(None, 24).render(str(self.fish), True, (0, 0, 0))
-        text_rect.center = self.center
-        surface.blit(text_surface, text_rect)
 
     def set_fish(self, num):
         self.fish += num
@@ -99,28 +97,30 @@ class FishSim(State):
             if not fisherman.day_complete:
                 fisherman.target_pond = random.choice(self.ponds)
     
+    def handle_event(self, event):
+        if self.game_over:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                from states.title import Title
+                Title(self.game).enter_state()
+        elif not self.day_in_progress:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    self.selfish_mode = False
+                    self.game.selfishmode = False
+                    self.day_in_progress = True
+                    self.message = f"Day {self.day} in progress: Taking 1 fish each"
+                elif event.key == pygame.K_s:
+                    self.selfish_mode = True
+                    self.game.selfishmode = True
+                    self.day_in_progress = True
+                    self.message = f"Day {self.day} in progress: Taking as many fish as possible!"
+
     def update(self, delta_time):
         if self.game.selfishmode and not self.selfish_mode:
             self.selfish_mode = True
             self.message = "Selfish mode activated! All fishermen will take as many fish as possible."
             
         if self.game_over:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_r]:
-                self.__init__(self.game)
-            return
-        
-        if not self.day_in_progress:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_1]:
-                self.selfish_mode = False
-                self.day_in_progress = True
-                self.message = "Day " + str(self.day) + " in progress: Taking 1 fish each"
-            elif keys[pygame.K_s]:
-                self.selfish_mode = True
-                self.game.selfishmode = True
-                self.day_in_progress = True
-                self.message = "Day " + str(self.day) + " in progress: Taking as many fish as possible!"
             return
         
         all_complete = True
@@ -170,6 +170,7 @@ class FishSim(State):
         surface.fill((255, 255, 255))
         for pond in self.ponds:
             pond.display(surface)
+            self.game.draw_text(surface, str(pond.fish), (0, 0, 0), pond.center[0], pond.center[1])
         for fisherman in self.fishermen:
             fisherman.display(surface)
         self.draw_game_info(surface)

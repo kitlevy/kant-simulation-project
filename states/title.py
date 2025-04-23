@@ -1,3 +1,5 @@
+import pygame
+import pygame.freetype
 from states.state import State
 
 class Title(State):
@@ -7,6 +9,12 @@ class Title(State):
 
     def update(self, delta_time):
         pass
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                from states.fish_sim import FishSim
+                FishSim(self.game).enter_state()
 
     def render(self, display):
         top = self.game.GAME_H/4
