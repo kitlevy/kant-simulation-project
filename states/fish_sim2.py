@@ -49,18 +49,6 @@ class Fisherman:
             return True
         return False
 
-class Player(Fisherman):
-        def __init__(self, x, y, color, is_player=True):
-        self.pos = [x, y]
-        self.color = color
-        self.size = 10
-        self.fish_count = 0
-        self.current_pond = None
-        self.target_pond = None
-        self.is_player = is_player
-        self.day_complete = False
-
-
 class FishSim(State):
     def __init__(self, game):
         State.__init__(self, game)
@@ -69,7 +57,7 @@ class FishSim(State):
         self.ai_color = (255, 0, 59)       #red
         self.day = 1
         self.selfish_mode = False
-        self.message = "You've just arrived in the village, and you're ready to get fishing!\n Press A to take just one fish per day\n Press S to take as many as you can"
+        self.message = "Day 1: Choose your fishing strategy (1 for fair, S for selfish)"
         self.days_passed = 0
         self.game_over = False
         self.day_in_progress = False
@@ -114,20 +102,18 @@ class FishSim(State):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 from states.title import Title
                 Title(self.game).enter_state()
-        elif self.days == 0:
+        elif not self.day_in_progress:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
+                if event.key == pygame.K_1:
                     self.selfish_mode = False
                     self.game.selfishmode = False
                     self.day_in_progress = True
-                    self.message = f"You've chosen to take just one fish per day!\n
-                    All the other fishermen in the village continue to take one fish each per day.\n"
+                    self.message = f"Day {self.day} in progress: Taking 1 fish each"
                 elif event.key == pygame.K_s:
                     self.selfish_mode = True
                     self.game.selfishmode = True
                     self.day_in_progress = True
-                    self.message = f"You've chosen to take as many  fish as possible!\n
-                    But uh oh! All the other fisherman in the "
+                    self.message = f"Day {self.day} in progress: Taking as many fish as possible!"
 
     def update(self, delta_time):
         if self.game.selfishmode and not self.selfish_mode:
