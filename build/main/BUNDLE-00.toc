@@ -1,0 +1,3 @@
+([('main',
+   '/Users/elevy22/Projects/kant-simulation-project/dist/main',
+   'EXECUTABLE')],)
