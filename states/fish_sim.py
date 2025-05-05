@@ -1,8 +1,9 @@
 import pygame
 import pygame.freetype
+from pygame import gfxdraw
 import random
 from states.state import State
-from text_utils import *
+from text_utils import draw_centered_text, draw_smooth_circle
 
 class Pond:
     def __init__(self, loc, fish, radius=30):
@@ -11,9 +12,11 @@ class Pond:
         self.x = self.center[0]
         self.y = self.center[1]
         self.size = radius
+        self.color = (173, 216, 230)
 
     def display(self, surface):
-        pygame.draw.circle(surface, (173, 216, 230), self.center, self.size)
+        draw_smooth_circle(surface, self.x, self.y, self.size, self.color)
+        #pygame.draw.circle(surface, (173, 216, 230), self.center, self.size)
 
     def set_fish(self, num):
         self.fish += num
@@ -35,7 +38,8 @@ class Fisherman:
         self.speed = 80
         
     def display(self, surface):
-        pygame.draw.circle(surface, self.color, [int(self.pos[0]), int(self.pos[1])], self.size)
+        draw_smooth_circle(surface, int(self.pos[0]), int(self.pos[1]), self.size, self.color)
+        #pygame.draw.circle(surface, self.color, [int(self.pos[0]), int(self.pos[1])], self.size)
         
     def move_to_pond(self, delta_time):
         if not self.target_pond:
@@ -85,7 +89,7 @@ class FishSim(State):
         self.daily_goal = 4
 
     def setup_game(self):
-        voffset = 20
+        voffset = 16
 
         pond_locations = [
             (self.game.GAME_W // 4, self.game.GAME_H // 3 + voffset),
@@ -102,10 +106,11 @@ class FishSim(State):
         player_y = self.game.GAME_H // 2
         self.player = Fisherman(player_x, player_y, self.player_color, is_player=True)
         self.fishermen.append(self.player)
-        
+
+        edge_buffer = 20
         for i in range(self.fisher_count):
-            x = random.randint(20, self.game.GAME_W - 20)
-            y = random.randint(20, self.game.GAME_H - 20)
+            x = random.randint(edge_buffer, self.game.GAME_W - edge_buffer)
+            y = random.randint(edge_buffer, self.game.GAME_H - edge_buffer)
             self.fishermen.append(Fisherman(x, y, self.ai_color))
         
         self.assign_random_targets()
@@ -129,13 +134,13 @@ class FishSim(State):
                     self.selfish_mode = False
                     self.game.selfishmode = False
                     self.day_in_progress = True
-                    self.message = "You've chosen to take just one fish per day!\n All the other fishermen in the village continue to take one fish each per day.\n"
+                    self.message = "You've chosen to take just one fish per day!\n All the other fishermen in the village will also take one fish each per day.\n"
                 elif event.key == pygame.K_s:
                     self.intro_mode = False
                     self.selfish_mode = True
                     self.game.selfishmode = True
                     self.day_in_progress = True
-                    self.message = "You've chosen to take as many  fish as possible! But uh oh!\nAll the other fishermen in the village will also now take as many as they can \n"
+                    self.message = "You've chosen to take as many  fish as possible! But uh oh!\nAll the other fishermen in the village will also now take as many as they can.\n"
 
     def update(self, delta_time):
         if self.game.selfishmode and not self.selfish_mode:

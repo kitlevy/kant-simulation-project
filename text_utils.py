@@ -1,5 +1,10 @@
 import pygame
 import pygame.freetype
+from pygame import gfxdraw
+
+def draw_smooth_circle(surface, x, y, radius, color):
+    gfxdraw.aacircle(surface, x, y, radius, color)
+    gfxdraw.filled_circle(surface, x, y, radius, color)
 
 def render_scaled_text(font, text, color, target_height, render_size=64):        
     surface, _ = font.render(text, fgcolor=color, size=render_size)
