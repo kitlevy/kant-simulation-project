@@ -5,12 +5,12 @@ from states.state import State
 from text_utils import *
 
 class Pond:
-    def __init__(self, loc, fish):
+    def __init__(self, loc, fish, radius=30):
         self.fish = fish
         self.center = loc
         self.x = self.center[0]
         self.y = self.center[1]
-        self.size = 30
+        self.size = radius
 
     def display(self, surface):
         pygame.draw.circle(surface, (173, 216, 230), self.center, self.size)
@@ -76,6 +76,7 @@ class FishSim(State):
         self.game_over = False
         self.day_in_progress = False
         self.intro_mode = True
+        self.fisher_count = 6
         
         self.ponds = []
         self.fishermen = []
@@ -92,17 +93,17 @@ class FishSim(State):
             (self.game.GAME_W // 4, 2 * self.game.GAME_H // 3 + voffset),
             (3 * self.game.GAME_W // 4, 2 * self.game.GAME_H // 3 + voffset)
         ]
-        
+        rad = 40
         for loc in pond_locations:
-            fish_count = random.randint(3, 8)
-            self.ponds.append(Pond(loc, fish_count))
+            fish_count = random.randint(10, 20)
+            self.ponds.append(Pond(loc, fish_count, rad))
         
         player_x = self.game.GAME_W // 2
         player_y = self.game.GAME_H // 2
         self.player = Fisherman(player_x, player_y, self.player_color, is_player=True)
         self.fishermen.append(self.player)
         
-        for i in range(5):
+        for i in range(self.fisher_count):
             x = random.randint(20, self.game.GAME_W - 20)
             y = random.randint(20, self.game.GAME_H - 20)
             self.fishermen.append(Fisherman(x, y, self.ai_color))
@@ -118,9 +119,9 @@ class FishSim(State):
     
     def handle_event(self, event):
         if self.game_over:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                from states.title import Title
-                Title(self.game).enter_state()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                from states.ending import Ending
+                Ending(self.game).enter_state()
         elif self.intro_mode:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
@@ -134,7 +135,7 @@ class FishSim(State):
                     self.selfish_mode = True
                     self.game.selfishmode = True
                     self.day_in_progress = True
-                    self.message = "You've chosen to take as many  fish as possible! But uh oh!\nAll the other fisherman in the village will also now take as many as they can \n"
+                    self.message = "You've chosen to take as many  fish as possible! But uh oh!\nAll the other fishermen in the village will also now take as many as they can \n"
 
     def update(self, delta_time):
         if self.game.selfishmode and not self.selfish_mode:
@@ -175,7 +176,7 @@ class FishSim(State):
 
         elif not self.selfish_mode and self.day >= 7:
             self.game_over = True
-            self.message = f"SUCCESS: You made it through the week with {total_fish} fish remaining!\nYou've been accepted into your new village, and your responsible moral\nbehavior has served as a model for the rest of the fisherman."
+            self.message = f"SUCCESS: You made it through the week with {total_fish} fish remaining!\nYou've been accepted into your new village, and your responsible moral\nbehavior has served as a model for the rest of the fishermen."
             return
 
         self.message = f"Day {self.day} complete! Player has {self.player.fish_count} fish total."
@@ -201,20 +202,22 @@ class FishSim(State):
         self.draw_game_info(surface)
     
     def draw_game_info(self, surface):
-        draw_centered_text(self.game.font, surface, self.message, (self.game.GAME_W // 2, 40), (0, 0, 0))
+        message_height = 40
+        draw_centered_text(self.game.font, surface, self.message, (self.game.GAME_W // 2, message_height), (0, 0, 0))
 
-        player_text = f"Your fish: {self.player.fish_count}"
-        draw_centered_text(self.game.font, surface, player_text, (self.game.GAME_W // 2, 100), (0,0,0))
+        #player_text = f"Your fish: {self.player.fish_count}"
+        #draw_centered_text(self.game.font, surface, player_text, (self.game.GAME_W // 2, 100), (0,0,0))
         #self.game.draw_text(surface, player_text, (0, 0, 0), self.game.GAME_W // 2, 100)
 
         total_fish = sum(pond.fish for pond in self.ponds)
         fish_text = f"Fish remaining: {total_fish}"
         #self.game.draw_text(surface, fish_text, (0, 0, 0), self.game.GAME_W // 2, 120)
-        draw_centered_text(self.game.font, surface, fish_text, (self.game.GAME_W // 2, 120), (0,0,0))
+        if not self.intro_mode and not self.game_over and self.day > 1:
+            draw_centered_text(self.game.font, surface, fish_text, (self.game.GAME_W // 2, message_height + 15), (0,0,0))
 
         draw_centered_text(self.game.font, surface, "Green = you", (50, self.game.GAME_H - 12), line_height=8, color=self.player_color)
 
         draw_centered_text(self.game.font, surface, "Red = other fishermen", (self.game.GAME_W - 85, self.game.GAME_H - 12), line_height=8, color=self.ai_color)
 
         if self.game_over:
-            draw_centered_text(self.game.font, surface, "Press R to restart", (self.game.GAME_W // 2, self.game.GAME_H - 30), (0, 0, 0))
+            draw_centered_text(self.game.font, surface, "PRESS ENTER TO CONTINUE", (self.game.GAME_W // 2, self.game.GAME_H - 30), (0, 0, 0))

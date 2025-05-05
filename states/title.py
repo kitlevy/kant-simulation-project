@@ -51,18 +51,19 @@ class Title(State):
 
         draw_centered_text(font, display,
             "We're going to illustrate Kant's categorical imperative with a simulation:\n" +
-            "You're a fisherman taking fish from ponds to feed your family. You can\n" +
-            "survive with just one fish, but you'd really like a fish for each of your four\n" +
-            "family members. Overnight, every pair of fish in a pond will repopulate the pond\n" +
-            "with one new fish. Each day you'll have the option to take just one fish, or to\n" +
-            "ake as many as you can (up to four). Here's the catch: the rest of the fishermen\n" +
-            "in the town will behave the same way you do. How will you act?",
-            (W // 2, top + 15 * spacing), line_height=spacing, color=textcol
+            "You're a fisherman taking fish from ponds to feed your family. Overnight, every\n" +
+            "pair of fish in a pond will spawn one new fish. You can survive with just one\n" +
+            "fish each day, but you'd really like a fish for each of your four family members.\n" +
+            "You've just arrived in a new village, and you have two choices for how to behave:\n" +
+            "you can take just one fish per day, or you can try to take as many fish as you\n" +
+            "can (up to four). Here's the catch - because morality is universal, the rest of\n" +
+            "the fishermen in the village will behave the same way you do. How will you act?\n",
+            (W // 2, top + 16 * spacing - 5), line_height=spacing, color=textcol
         )
 
         draw_centered_text(font, display,
             "PRESS ENTER TO START",
-            (W // 2, top + 20 * spacing), line_height=spacing, color=textcol
+            (W // 2, top + 21 * spacing), line_height=spacing, color=textcol
         )
 
         draw_centered_text(font, display,
