@@ -1,5 +1,5 @@
 # Visualizing Kant's Categorical Imperative
-Author: [Kit Levy] (github.com/kitlevy)
+Author: [Kit Levy](github.com/kitlevy)
 
 ## How to Run
 
