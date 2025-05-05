@@ -32,6 +32,7 @@ class Fisherman:
         self.target_pond = None
         self.is_player = is_player
         self.day_complete = False
+        self.speed = 80
         
     def display(self, surface):
         pygame.draw.circle(surface, self.color, [int(self.pos[0]), int(self.pos[1])], self.size)
@@ -42,8 +43,8 @@ class Fisherman:
         direction = pygame.math.Vector2(self.target_pond.x - self.pos[0], self.target_pond.y - self.pos[1])
         if direction.length() > 0:
             direction.normalize_ip()
-            self.pos[0] += direction.x * 60 * delta_time
-            self.pos[1] += direction.y * 60 * delta_time
+            self.pos[0] += direction.x * self.speed * delta_time
+            self.pos[1] += direction.y * self.speed * delta_time
         distance = pygame.math.Vector2(self.pos[0] - self.target_pond.x, self.pos[1] - self.target_pond.y).length()
         if distance < self.size + self.target_pond.size - 5:
             self.current_pond = self.target_pond
@@ -59,7 +60,7 @@ class Player(Fisherman):
         self.current_pond = None
         self.target_pond = None
         self.is_player = is_player
-        self.day_complete = False
+        self.day_complete = False 
 
 
 class FishSim(State):
@@ -83,11 +84,13 @@ class FishSim(State):
         self.daily_goal = 4
 
     def setup_game(self):
+        voffset = 20
+
         pond_locations = [
-            (self.game.GAME_W // 4, self.game.GAME_H // 3),
-            (3 * self.game.GAME_W // 4, self.game.GAME_H // 3),
-            (self.game.GAME_W // 4, 2 * self.game.GAME_H // 3),
-            (3 * self.game.GAME_W // 4, 2 * self.game.GAME_H // 3)
+            (self.game.GAME_W // 4, self.game.GAME_H // 3 + voffset),
+            (3 * self.game.GAME_W // 4, self.game.GAME_H // 3 + voffset),
+            (self.game.GAME_W // 4, 2 * self.game.GAME_H // 3 + voffset),
+            (3 * self.game.GAME_W // 4, 2 * self.game.GAME_H // 3 + voffset)
         ]
         
         for loc in pond_locations:
@@ -110,6 +113,8 @@ class FishSim(State):
         for fisherman in self.fishermen:
             if not fisherman.day_complete:
                 fisherman.target_pond = random.choice(self.ponds)
+                while fisherman.target_pond.fish == 0:
+                    fisherman.target_pond = random.choice(self.ponds)
     
     def handle_event(self, event):
         if self.game_over:
@@ -129,13 +134,13 @@ class FishSim(State):
                     self.selfish_mode = True
                     self.game.selfishmode = True
                     self.day_in_progress = True
-                    self.message = "You've chosen to take as many  fish as possible!\n But uh oh! All the other fisherman in the village will also now take as many as they can \n"
+                    self.message = "You've chosen to take as many  fish as possible! But uh oh!\nAll the other fisherman in the village will also now take as many as they can \n"
 
     def update(self, delta_time):
         if self.game.selfishmode and not self.selfish_mode:
             self.selfish_mode = True
             #self.message = "Selfish mode activated! All fishermen will take as many fish as possible."
-            
+
         if not self.intro_mode or self.game_over:
             all_complete = True
             for fisherman in self.fishermen:
@@ -165,9 +170,14 @@ class FishSim(State):
         
         if total_fish == 0:
             self.game_over = True
-            self.message = f"GAME OVER: All fish are gone after {self.day} days! The ecosystem has collapsed."
+            self.message = f"GAME OVER: All fish are gone after {self.day} days! The ecosystem has collapsed.\nYour selfish behavior, when applied universally, caused the village to starve.\nDo better next time!"
             return
-        
+
+        elif not self.selfish_mode and self.day >= 7:
+            self.game_over = True
+            self.message = f"SUCCESS: You made it through the week with {total_fish} fish remaining!\nYou've been accepted into your new village, and your responsible moral\nbehavior has served as a model for the rest of the fisherman."
+            return
+
         self.message = f"Day {self.day} complete! Player has {self.player.fish_count} fish total."
         for pond in self.ponds:
             pond.repopulate()
@@ -184,20 +194,27 @@ class FishSim(State):
         surface.fill((255, 255, 255))
         for pond in self.ponds:
             pond.display(surface)
-            self.game.draw_text(surface, str(pond.fish), (0, 0, 0), pond.center[0], pond.center[1])
+            draw_centered_text(self.game.font, surface, str(pond.fish), (pond.center[0],pond.center[1] + 5), (0, 0, 0), line_height=16)
+            #self.game.draw_text(surface, str(pond.fish), (0, 0, 0), pond.center[0], pond.center[1])
         for fisherman in self.fishermen:
             fisherman.display(surface)
         self.draw_game_info(surface)
     
     def draw_game_info(self, surface):
-        draw_centered_text(surface, self.message, (self.game.GAME_W // 2, 40), (0, 0, 0))
-        
+        draw_centered_text(self.game.font, surface, self.message, (self.game.GAME_W // 2, 40), (0, 0, 0))
+
         player_text = f"Your fish: {self.player.fish_count}"
-        self.game.draw_text(surface, player_text, (0, 0, 0), self.game.GAME_W // 2, 100)
+        draw_centered_text(self.game.font, surface, player_text, (self.game.GAME_W // 2, 100), (0,0,0))
+        #self.game.draw_text(surface, player_text, (0, 0, 0), self.game.GAME_W // 2, 100)
 
         total_fish = sum(pond.fish for pond in self.ponds)
         fish_text = f"Fish remaining: {total_fish}"
-        self.game.draw_text(surface, fish_text, (0, 0, 0), self.game.GAME_W // 2, 120)
+        #self.game.draw_text(surface, fish_text, (0, 0, 0), self.game.GAME_W // 2, 120)
+        draw_centered_text(self.game.font, surface, fish_text, (self.game.GAME_W // 2, 120), (0,0,0))
+
+        draw_centered_text(self.game.font, surface, "Green = you", (50, self.game.GAME_H - 12), line_height=8, color=self.player_color)
+
+        draw_centered_text(self.game.font, surface, "Red = other fishermen", (self.game.GAME_W - 85, self.game.GAME_H - 12), line_height=8, color=self.ai_color)
 
         if self.game_over:
-            draw_centered_text(surface, "Press R to restart", (self.game.GAME_W // 2, self.game.GAME_H - 30), (0, 0, 0))
+            draw_centered_text(self.game.font, surface, "Press R to restart", (self.game.GAME_W // 2, self.game.GAME_H - 30), (0, 0, 0))

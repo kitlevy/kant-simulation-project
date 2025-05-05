@@ -7,7 +7,7 @@ from states import Title, FishSim
 class Game():
     def __init__(self):
         pygame.init()
-        self.GAME_W, self.GAME_H = 480, 270
+        self.GAME_W, self.GAME_H = 600, 300
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 960, 540
         self.game_canvas = pygame.Surface((self.GAME_W, self.GAME_H))
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
@@ -57,10 +57,12 @@ class Game():
     def load_assets(self):
         self.assets_dir = os.path.join("assets")
         self.font_dir = os.path.join(self.assets_dir, "font")
-        self.font = pygame.freetype.Font("assets/calibri-regular.ttf")
+        self.font = pygame.freetype.Font("assets/PixelOperator-Bold.ttf",16)
+        #self.font = pygame.freetype.Font("assets/PressStart.ttf",12)
+
 
     def load_states(self):
-        Title(self).enter_state()
+            Title(self).enter_state()
 
     def change_state(self, new_state):
         if self.state_stack:
