@@ -57,7 +57,7 @@ class Game():
     def load_assets(self):
         self.assets_dir = os.path.join("assets")
         self.font_dir = os.path.join(self.assets_dir, "font")
-        self.font = pygame.freetype.Font("assets/calibri-bold.ttf", 18)
+        self.font = pygame.freetype.Font("assets/calibri-regular.ttf")
 
     def load_states(self):
         Title(self).enter_state()

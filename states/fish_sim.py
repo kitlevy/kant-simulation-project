@@ -2,6 +2,7 @@ import pygame
 import pygame.freetype
 import random
 from states.state import State
+from text_utils import *
 
 class Pond:
     def __init__(self, loc, fish):
@@ -50,7 +51,7 @@ class Fisherman:
         return False
 
 class Player(Fisherman):
-        def __init__(self, x, y, color, is_player=True):
+    def __init__(self, x, y, color, is_player=True):
         self.pos = [x, y]
         self.color = color
         self.size = 10
@@ -73,6 +74,7 @@ class FishSim(State):
         self.days_passed = 0
         self.game_over = False
         self.day_in_progress = False
+        self.intro_mode = True
         
         self.ponds = []
         self.fishermen = []
@@ -114,51 +116,49 @@ class FishSim(State):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 from states.title import Title
                 Title(self.game).enter_state()
-        elif self.days == 0:
+        elif self.intro_mode:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
+                    self.intro_mode = False
                     self.selfish_mode = False
                     self.game.selfishmode = False
                     self.day_in_progress = True
-                    self.message = f"You've chosen to take just one fish per day!\n
-                    All the other fishermen in the village continue to take one fish each per day.\n"
+                    self.message = "You've chosen to take just one fish per day!\n All the other fishermen in the village continue to take one fish each per day.\n"
                 elif event.key == pygame.K_s:
+                    self.intro_mode = False
                     self.selfish_mode = True
                     self.game.selfishmode = True
                     self.day_in_progress = True
-                    self.message = f"You've chosen to take as many  fish as possible!\n
-                    But uh oh! All the other fisherman in the "
+                    self.message = "You've chosen to take as many  fish as possible!\n But uh oh! All the other fisherman in the village will also now take as many as they can \n"
 
     def update(self, delta_time):
         if self.game.selfishmode and not self.selfish_mode:
             self.selfish_mode = True
-            self.message = "Selfish mode activated! All fishermen will take as many fish as possible."
+            #self.message = "Selfish mode activated! All fishermen will take as many fish as possible."
             
-        if self.game_over:
-            return
-        
-        all_complete = True
-        for fisherman in self.fishermen:
-            if fisherman.day_complete:
-                continue
-                
-            all_complete = False
-            
-            if fisherman.move_to_pond(delta_time):
-                pond = fisherman.current_pond
-                if pond.fish > 0:
-                    if self.selfish_mode:
-                        fish_to_take = min(pond.fish, self.daily_goal)
-                    else:
-                        fish_to_take = 1
+        if not self.intro_mode or self.game_over:
+            all_complete = True
+            for fisherman in self.fishermen:
+                if fisherman.day_complete:
+                    continue
                     
-                    pond.set_fish(-fish_to_take)  # Subtract fish from pond
-                    fisherman.fish_count += fish_to_take
+                all_complete = False
                 
-                fisherman.day_complete = True
-        
-        if all_complete:
-            self.end_day()
+                if fisherman.move_to_pond(delta_time):
+                    pond = fisherman.current_pond
+                    if pond.fish > 0:
+                        if self.selfish_mode:
+                            fish_to_take = min(pond.fish, self.daily_goal)
+                        else:
+                            fish_to_take = 1
+                        
+                        pond.set_fish(-fish_to_take)  # Subtract fish from pond
+                        fisherman.fish_count += fish_to_take
+                    
+                    fisherman.day_complete = True
+            
+            if all_complete:
+                self.end_day()
     
     def end_day(self):
         total_fish = sum(pond.fish for pond in self.ponds)
@@ -190,11 +190,14 @@ class FishSim(State):
         self.draw_game_info(surface)
     
     def draw_game_info(self, surface):
-        self.game.draw_text(surface, self.message, (0, 0, 0), self.game.GAME_W // 2, 20)
+        draw_centered_text(surface, self.message, (self.game.GAME_W // 2, 40), (0, 0, 0))
+        
         player_text = f"Your fish: {self.player.fish_count}"
-        self.game.draw_text(surface, player_text, (0, 0, 0), self.game.GAME_W // 2, 40)
+        self.game.draw_text(surface, player_text, (0, 0, 0), self.game.GAME_W // 2, 100)
+
         total_fish = sum(pond.fish for pond in self.ponds)
         fish_text = f"Fish remaining: {total_fish}"
-        self.game.draw_text(surface, fish_text, (0, 0, 0), self.game.GAME_W // 2, 60)
+        self.game.draw_text(surface, fish_text, (0, 0, 0), self.game.GAME_W // 2, 120)
+
         if self.game_over:
-            self.game.draw_text(surface, "Press R to restart", (0, 0, 0), self.game.GAME_W // 2, self.game.GAME_H - 30)
+            draw_centered_text(surface, "Press R to restart", (self.game.GAME_W // 2, self.game.GAME_H - 30), (0, 0, 0))
